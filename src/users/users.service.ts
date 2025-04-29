@@ -3,30 +3,24 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { CreateUserDto } from './dto/create-user.dto';
-import * as bcrypt from 'bcrypt'
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UsersService {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
 
+  // Crear usuario sin hash manual
   async create(createUserDto: CreateUserDto): Promise<User> {
-    console.log('DTO recibido:', createUserDto); // <-- Añade esto
-
-    if (!createUserDto.password) {
-        throw new Error('❌ Password no definido en el DTO');
-    }
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
-    console.log('🔐 Hashed Password:', hashedPassword);
+    console.log('DTO recibido:', createUserDto); // Verificar el DTO recibido
 
     const createdUser = new this.userModel({
-        ...createUserDto,
-        password: hashedPassword,
-        isActive: true,
+      ...createUserDto,
+      isActive: true,  // Activado por defecto
     });
 
     console.log('Usuario creado:', createdUser);
-    return createdUser.save();
-}
+    return createdUser.save(); // El hook pre('save') se encargará del hash aquí
+  }
 
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
@@ -39,7 +33,6 @@ export class UsersService {
   }
 
   async update(id: string, updateData: Partial<User>): Promise<User | null> {
-    debugger;
     return this.userModel.findByIdAndUpdate(id, updateData, { new: true });
   }
 
@@ -58,14 +51,13 @@ export class UsersService {
   }
 
   async updatePassword(userId: string, newPassword: string) {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
     return this.userModel.findByIdAndUpdate(userId, {
-      password: newPassword,
+      password: hashedPassword,
     });
   }
 
   async deleteAll(): Promise<void> {
     await this.userModel.deleteMany({});
   }
-  
-  
 }

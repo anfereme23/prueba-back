@@ -33,15 +33,6 @@ export class User {
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// // Middleware para cifrar la contraseña antes de guardar
-// UserSchema.pre<UserDocument>('save', async function (next) {
-//   if (this.isModified('password')) {
-//     const salt = await bcrypt.genSalt(10);
-//     this.password = await bcrypt.hash(this.password, salt);
-//   }
-//   next();
-// });
-
 UserSchema.pre('save', async function (next) {
     if (!this.isModified('password')) {
       return next();

@@ -16,14 +16,16 @@ export class AuthService {
 
   async validateUser(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
+    console.log('Usuario encontrado:', user); // Verifica el usuario encontrado
     if (!user || !user.isActive) {
       throw new UnauthorizedException('Usuario no encontrado o inactivo');
     }
 
     console.log('Contraseña ingresada:', password);
-  console.log('Contraseña almacenada en la base de datos:', user.password);
+    console.log('Contraseña almacenada en la base de datos:', user.password);
 
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log('Contraseña válida:', isMatch); // Resultado de la comparación
     if (!isMatch) {
       throw new UnauthorizedException('Credenciales inválidas');
     }
@@ -32,9 +34,20 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto) {
-    const user = await this.validateUser(loginDto.email, loginDto.password);
 
-    const payload = { sub: user._id, email: user.email };
+     // Solo para pruebas rápidas
+  const user = await this.usersService.findByEmail(loginDto.email);
+  if (user) {
+    console.log('Contraseña ingresada:', loginDto.password);
+    console.log('Contraseña en DB:', user.password);
+    const valid = await bcrypt.compare(loginDto.password, user.password);
+    console.log('¿Contraseña válida?', valid);
+  } else {
+    console.log('Usuario no encontrado en base de datos');
+  }
+    const validatedUser = await this.validateUser(loginDto.email, loginDto.password);
+
+    const payload = { sub: validatedUser._id, email: validatedUser.email };
     const token = this.jwtService.sign(payload, {
         expiresIn: '1h',
     });

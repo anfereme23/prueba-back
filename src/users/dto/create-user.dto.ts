@@ -17,5 +17,6 @@ export class CreateUserDto {
   password: string;
 
   @IsBoolean()
+  @ApiProperty({ example: true, description: 'Indica si el usuario está activo' })
   isActive?: boolean;
 }

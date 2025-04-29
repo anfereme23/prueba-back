@@ -5,7 +5,7 @@ import { LoginDto } from './dto/login.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { ResetPasswordDto } from './dto/reset-password.dto';
+//import { ResetPasswordDto } from './dto/reset-password.dto';
 
 
 @ApiTags('Autenticación')
@@ -29,9 +29,9 @@ async forgotPassword(@Body() dto: ForgotPasswordDto) {
   return { message: 'Si el correo existe, se envió un enlace de recuperación.' };
 }
 
-@Post('reset-password')
-async resetPassword(@Body() dto: ResetPasswordDto) {
-  return this.authService.resetPassword(dto.token, dto.newPassword);
-}
+// @Post('reset-password')
+// async resetPassword(@Body() dto: ResetPasswordDto) {
+//   return this.authService.resetPassword(dto.token, dto.newPassword);
+// }
 
 }
